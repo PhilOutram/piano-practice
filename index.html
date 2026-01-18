@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piano Practice Player</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🎹 Piano Practice Player</h1>
+
+        <div class="card">
+            <div class="file-upload">
+                <input type="file" id="fileInput" accept="audio/*">
+                <div class="file-name" id="fileName"></div>
+                <div id="recentSongsButtons" style="margin-top: 12px;"></div>
+            </div>
+        </div>
+
+        <audio id="audioPlayer"></audio>
+
+        <div id="playerSection" style="display: none;">
+            <!-- Progress Tracks -->
+            <div class="card">
+                <div class="track-container">
+                    <div class="track-label">
+                        <span>Full Song</span>
+                        <span id="fullTime">0:00 / 0:00</span>
+                    </div>
+                    <div class="progress-bar" id="fullTrack">
+                        <canvas class="waveform-canvas" id="fullWaveform"></canvas>
+                        <div class="progress-overlay" id="fullProgress"></div>
+                        <div class="current-position" id="fullPosition"></div>
+                        <div id="fullBookmarks"></div>
+                        <div id="fullLoop"></div>
+                    </div>
+                </div>
+
+                <div class="track-container">
+                    <div class="track-label">
+                        <span>30 Second Window</span>
+                        <span id="windowTime30">0:00 - 0:00</span>
+                    </div>
+                    <div class="progress-bar" id="window30Track">
+                        <canvas class="waveform-canvas" id="window30Waveform"></canvas>
+                        <div class="progress-overlay" id="window30Progress"></div>
+                        <div class="current-position" id="window30Position"></div>
+                        <div id="window30Bookmarks"></div>
+                    </div>
+                </div>
+
+                <div class="track-container">
+                    <div class="track-label">
+                        <span>10 Second Window</span>
+                        <span id="windowTime10">0:00 - 0:00</span>
+                    </div>
+                    <div class="progress-bar" id="window10Track">
+                        <canvas class="waveform-canvas" id="window10Waveform"></canvas>
+                        <div class="progress-overlay" id="window10Progress"></div>
+                        <div class="current-position" id="window10Position"></div>
+                        <div id="window10Bookmarks"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Playback Controls -->
+            <div class="card">
+                <div class="controls">
+                    <button class="play-button" id="playButton">▶</button>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-rewind" id="rewindStart">⏮ Start</button>
+                    <button class="btn btn-rewind" id="rewind30">↺ 30s</button>
+                    <button class="btn btn-rewind" id="rewind10">↺ 10s</button>
+                    <button class="btn btn-rewind" id="rewind5">↺ 5s</button>
+                    <button class="btn btn-rewind" id="rewind1">↺ 1s</button>
+                    <button class="btn btn-rewind" id="forward1">↻ 1s</button>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <label style="font-weight: 600; display: block; margin-bottom: 12px;">
+                        Speed: <span id="speedDisplay">1.0</span>x
+                    </label>
+                    <div class="button-group">
+                        <button class="btn btn-speed" data-speed="0.5">0.5x</button>
+                        <button class="btn btn-speed" data-speed="0.75">0.75x</button>
+                        <button class="btn btn-speed active" data-speed="1.0">1.0x</button>
+                        <button class="btn btn-speed" data-speed="1.25">1.25x</button>
+                        <button class="btn btn-speed" data-speed="1.5">1.5x</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bookmarks & Loop -->
+            <div class="card">
+                <div class="section-title">Bookmarks & Practice Tools</div>
+                
+                <div class="button-group">
+                    <button class="btn btn-bookmark" id="addBookmark">🔖 Add Bookmark</button>
+                    <button class="btn btn-nav" id="prevBookmark">⏮ Previous</button>
+                    <button class="btn btn-nav" id="nextBookmark">⏭ Next</button>
+                    <button class="btn btn-loop" id="toggleLoop">🔁 Loop Mode: Off</button>
+                </div>
+
+                <div id="bookmarkList" style="margin-top: 16px;"></div>
+
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-value" id="practiceTime">0:00</div>
+                        <div class="stat-label">Practice Time</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="loopCount">0</div>
+                        <div class="stat-label">Loop Repeats</div>
+                    </div>
+                </div>
+
+                <div class="keyboard-help">
+                    <strong>Keyboard Shortcuts:</strong> Space = Play/Pause | ← → = 5s Skip | Shift+← → = 1s Skip | B = Bookmark | L = Toggle Loop
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,402 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: linear-gradient(135deg, #f5f3ff 0%, #e0e7ff 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+h1 {
+    text-align: center;
+    color: #4c1d95;
+    margin-bottom: 30px;
+    font-size: 2.5em;
+}
+
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.file-upload input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    border: 2px dashed #9333ea;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #faf5ff;
+}
+
+.file-name {
+    margin-top: 8px;
+    color: #6b7280;
+    font-size: 0.9em;
+}
+
+.track-container {
+    margin-bottom: 20px;
+}
+
+.track-label {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 6px;
+    font-size: 0.9em;
+    display: flex;
+    justify-content: space-between;
+}
+
+.progress-bar {
+    position: relative;
+    height: 60px;
+    background: #f3f4f6;
+    border-radius: 6px;
+    cursor: pointer;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+}
+
+.waveform-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.progress-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: rgba(147, 51, 234, 0.3);
+    pointer-events: none;
+    transition: width 0.1s;
+}
+
+.current-position {
+    position: absolute;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    background: #9333ea;
+    pointer-events: none;
+}
+
+.bookmark-marker {
+    position: absolute;
+    top: 0;
+    width: 3px;
+    height: 100%;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.loop-marker {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    background: rgba(16, 185, 129, 0.2);
+    border: 2px solid #10b981;
+    pointer-events: none;
+}
+
+.controls {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.play-button {
+    background: #9333ea;
+    color: white;
+    border: none;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 6px rgba(147, 51, 234, 0.3);
+    transition: all 0.2s;
+}
+
+.play-button:hover {
+    background: #7e22ce;
+    transform: scale(1.05);
+}
+
+.button-group {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-rewind {
+    background: #3b82f6;
+    color: white;
+}
+
+.btn-rewind:hover {
+    background: #2563eb;
+}
+
+/* Darker colors for longer rewind times */
+#rewindStart {
+    background: #0f172a;
+}
+
+#rewindStart:hover {
+    background: #020617;
+}
+
+#rewind30 {
+    background: #1e40af;
+}
+
+#rewind30:hover {
+    background: #1e3a8a;
+}
+
+#rewind10 {
+    background: #2563eb;
+}
+
+#rewind10:hover {
+    background: #1d4ed8;
+}
+
+#rewind5 {
+    background: #3b82f6;
+}
+
+#rewind5:hover {
+    background: #2563eb;
+}
+
+#rewind1 {
+    background: #60a5fa;
+}
+
+#rewind1:hover {
+    background: #3b82f6;
+}
+
+/* Forward button in different blue */
+#forward1 {
+    background: #06b6d4;
+}
+
+#forward1:hover {
+    background: #0891b2;
+}
+
+.btn-speed {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.btn-speed:hover {
+    background: #d1d5db;
+}
+
+.btn-speed.active {
+    background: #9333ea;
+    color: white;
+}
+
+.btn-bookmark {
+    background: #10b981;
+    color: white;
+}
+
+.btn-bookmark:hover {
+    background: #059669;
+}
+
+.btn-loop {
+    background: #f59e0b;
+    color: white;
+}
+
+.btn-loop:hover {
+    background: #d97706;
+}
+
+.btn-loop.active {
+    background: #10b981;
+}
+
+.btn-nav {
+    background: #6b7280;
+    color: white;
+}
+
+.btn-nav:hover {
+    background: #4b5563;
+}
+
+.section-title {
+    font-size: 1.25em;
+    font-weight: 700;
+    color: #374151;
+    margin-bottom: 16px;
+}
+
+.bookmark-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f9fafb;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.bookmark-item.loop-start {
+    border-left: 4px solid #10b981;
+}
+
+.bookmark-item.loop-end {
+    border-right: 4px solid #10b981;
+}
+
+.bookmark-info {
+    flex: 1;
+    cursor: pointer;
+}
+
+.bookmark-info:hover {
+    color: #9333ea;
+}
+
+.bookmark-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.bookmark-controls button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    font-size: 0.9em;
+}
+
+.bookmark-input {
+    background: white;
+    border: 1px solid #d1d5db;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.color-picker {
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.stats {
+    display: flex;
+    justify-content: space-around;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 8px;
+    margin-top: 16px;
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: #9333ea;
+}
+
+.stat-label {
+    font-size: 0.85em;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+.keyboard-help {
+    background: #fef3c7;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 0.85em;
+    color: #92400e;
+    margin-top: 16px;
+}
+
+.keyboard-help strong {
+    color: #78350f;
+}
+
+.recent-song-btn {
+    display: inline-block;
+    margin: 4px;
+    padding: 8px 16px;
+    background: #f3e8ff;
+    color: #6b21a8;
+    border: 2px solid #9333ea;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.recent-song-btn:hover {
+    background: #e9d5ff;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(147, 51, 234, 0.3);
+}
+
+.recent-song-btn-container {
+    background: #faf5ff;
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 12px;
+}
+
+.recent-song-label {
+    font-weight: 600;
+    color: #6b21a8;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+}
+
+#audioPlayer {
+    display: none;
+}
