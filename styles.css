@@ -8,7 +8,7 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     background: linear-gradient(135deg, #f5f3ff 0%, #e0e7ff 100%);
     min-height: 100vh;
-    padding: 20px;
+    padding: 10px;
 }
 
 .container {
@@ -19,15 +19,15 @@ body {
 h1 {
     text-align: center;
     color: #4c1d95;
-    margin-bottom: 30px;
-    font-size: 2.5em;
+    margin-bottom: 20px;
+    font-size: 2em;
 }
 
 .card {
     background: white;
     border-radius: 12px;
-    padding: 24px;
-    margin-bottom: 20px;
+    padding: 16px;
+    margin-bottom: 16px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
@@ -67,6 +67,7 @@ h1 {
     cursor: pointer;
     overflow: hidden;
     border: 1px solid #e5e7eb;
+    touch-action: none; /* Prevent scrolling when touching progress bar */
 }
 
 .waveform-canvas {
@@ -149,13 +150,17 @@ h1 {
 }
 
 .btn {
-    padding: 10px 20px;
+    padding: 12px 20px;
     border: none;
     border-radius: 8px;
     cursor: pointer;
     font-size: 0.95em;
     font-weight: 500;
     transition: all 0.2s;
+    min-height: 44px; /* Touch-friendly minimum */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-rewind {
@@ -399,4 +404,147 @@ h1 {
 
 #audioPlayer {
     display: none;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+    body {
+        padding: 5px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+        margin-bottom: 12px;
+    }
+
+    .card {
+        padding: 12px;
+        margin-bottom: 12px;
+        border-radius: 8px;
+    }
+
+    .track-container {
+        margin-bottom: 16px;
+    }
+
+    .track-label {
+        font-size: 0.85em;
+        margin-bottom: 4px;
+    }
+
+    .progress-bar {
+        height: 70px; /* Taller for easier touch */
+    }
+
+    .play-button {
+        width: 56px;
+        height: 56px;
+        font-size: 20px;
+    }
+
+    .button-group {
+        gap: 6px;
+        margin-top: 12px;
+    }
+
+    .btn {
+        padding: 10px 14px;
+        font-size: 0.85em;
+        min-height: 44px;
+        flex: 1; /* Buttons grow to fill space */
+        min-width: 0; /* Allow buttons to shrink */
+    }
+
+    /* Stack buttons vertically on very small screens */
+    @media (max-width: 480px) {
+        .button-group {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+        }
+    }
+
+    .controls {
+        margin-bottom: 16px;
+    }
+
+    .section-title {
+        font-size: 1.1em;
+        margin-bottom: 12px;
+    }
+
+    .bookmark-item {
+        padding: 10px;
+        font-size: 0.9em;
+        flex-wrap: wrap;
+    }
+
+    .bookmark-info {
+        flex-basis: 100%;
+        margin-bottom: 8px;
+    }
+
+    .bookmark-controls {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .stats {
+        flex-direction: column;
+        padding: 12px;
+        gap: 12px;
+    }
+
+    .stat {
+        padding: 8px 0;
+    }
+
+    .stat-value {
+        font-size: 1.3em;
+    }
+
+    .keyboard-help {
+        font-size: 0.75em;
+        padding: 10px;
+        display: none; /* Hide on mobile - no keyboard */
+    }
+
+    .recent-song-btn {
+        font-size: 0.85em;
+        padding: 6px 12px;
+        margin: 3px;
+    }
+
+    .file-upload input[type="file"] {
+        font-size: 0.9em;
+        padding: 8px;
+    }
+
+    /* Make color picker bigger on mobile */
+    .color-picker {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* Extra small phones */
+@media (max-width: 380px) {
+    h1 {
+        font-size: 1.3em;
+    }
+
+    .progress-bar {
+        height: 80px; /* Even taller on small phones */
+    }
+
+    .btn {
+        font-size: 0.8em;
+        padding: 8px 10px;
+    }
+
+    .bookmark-item {
+        font-size: 0.85em;
+    }
 }
