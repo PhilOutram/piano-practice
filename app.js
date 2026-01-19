@@ -14,6 +14,11 @@ let currentFileName = null;
 let lastFileHandle = null;
 let loadedFiles = new Map(); // Store File objects for quick reload
 
+// Smooth tracking state for windowed views
+let window30Center = 0; // Current center position for 30s window
+let window10Center = 0; // Current center position for 10s window
+let lastUpdateTime = 0;
+
 // DOM elements
 const fileInput = document.getElementById('fileInput');
 const audioPlayer = document.getElementById('audioPlayer');
@@ -225,6 +230,11 @@ async function loadAudioFile(file) {
     document.getElementById('fileName').textContent = `Loaded: ${file.name}`;
     document.getElementById('recentSongsButtons').innerHTML = '';
     
+    // Revoke old blob URL to prevent memory leak
+    if (audioPlayer.src && audioPlayer.src.startsWith('blob:')) {
+        URL.revokeObjectURL(audioPlayer.src);
+    }
+    
     const url = URL.createObjectURL(file);
     audioPlayer.src = url;
     
@@ -254,6 +264,8 @@ async function loadAudioFile(file) {
         }
         
         // Initialize all tracks and waveforms immediately
+        window30Center = audioPlayer.currentTime;
+        window10Center = audioPlayer.currentTime;
         updateAllTracks();
         updateBookmarkMarkers();
         updateLoopDisplay();
@@ -266,7 +278,7 @@ async function loadAudioFile(file) {
     await generateWaveform(file);
 }
 
-// Generate waveform visualization
+// Generate waveform visualization with RMS for better peaks/valleys
 async function generateWaveform(file) {
     try {
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -279,11 +291,27 @@ async function generateWaveform(file) {
         waveformData = [];
         
         for (let i = 0; i < samples; i++) {
-            let sum = 0;
+            let sumSquares = 0;
+            let min = 1.0;
+            let max = -1.0;
+            
             for (let j = 0; j < blockSize; j++) {
-                sum += Math.abs(rawData[i * blockSize + j]);
+                const sample = rawData[i * blockSize + j];
+                sumSquares += sample * sample;
+                min = Math.min(min, sample);
+                max = Math.max(max, sample);
             }
-            waveformData.push(sum / blockSize);
+            
+            // RMS (Root Mean Square) gives better representation of perceived loudness
+            const rms = Math.sqrt(sumSquares / blockSize);
+            const peak = Math.max(Math.abs(min), Math.abs(max));
+            
+            // Combine RMS and peak for professional-looking waveform
+            waveformData.push({
+                rms: rms,
+                peak: peak,
+                value: (rms * 0.7) + (peak * 0.3) // Weighted average
+            });
         }
         
         drawWaveform('fullWaveform', waveformData, 0, waveformData.length);
@@ -294,7 +322,7 @@ async function generateWaveform(file) {
     }
 }
 
-// Draw waveform on canvas
+// Draw waveform on canvas with improved visualization
 function drawWaveform(canvasId, data, startIdx, endIdx) {
     const canvas = document.getElementById(canvasId);
     const ctx = canvas.getContext('2d');
@@ -303,16 +331,29 @@ function drawWaveform(canvasId, data, startIdx, endIdx) {
     canvas.height = rect.height;
     
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#6b7280';
     
     const sliceData = data.slice(startIdx, endIdx);
     const barWidth = canvas.width / sliceData.length;
     
-    sliceData.forEach((value, i) => {
-        const barHeight = value * canvas.height * 2;
+    sliceData.forEach((item, i) => {
+        // Get the value (handle both old simple format and new RMS format)
+        const value = typeof item === 'object' ? item.value : item;
+        const rms = typeof item === 'object' ? item.rms : value;
+        const peak = typeof item === 'object' ? item.peak : value;
+        
         const x = i * barWidth;
-        const y = (canvas.height - barHeight) / 2;
-        ctx.fillRect(x, y, barWidth - 1, barHeight);
+        
+        // Draw peak in lighter gray for visual depth
+        const peakHeight = peak * canvas.height * 2;
+        const peakY = (canvas.height - peakHeight) / 2;
+        ctx.fillStyle = '#9ca3af';
+        ctx.fillRect(x, peakY, barWidth - 1, peakHeight);
+        
+        // Draw RMS on top in darker gray for clarity
+        const rmsHeight = rms * canvas.height * 2.5; // Slightly boosted for visibility
+        const rmsY = (canvas.height - rmsHeight) / 2;
+        ctx.fillStyle = '#6b7280';
+        ctx.fillRect(x, rmsY, barWidth - 1, rmsHeight);
     });
 }
 
@@ -320,19 +361,27 @@ function drawWaveform(canvasId, data, startIdx, endIdx) {
 function updateWaveforms() {
     if (!waveformData || !audioPlayer.duration) return;
     
-    const currentTime = audioPlayer.currentTime;
     const duration = audioPlayer.duration;
+    const currentTime = audioPlayer.currentTime;
     
-    // 30 second window
-    const window30Start = Math.max(0, currentTime - 15);
-    const window30End = Math.min(duration, currentTime + 15);
+    // Ensure window centers are initialized
+    if (!window30Center || window30Center === 0) {
+        window30Center = currentTime;
+    }
+    if (!window10Center || window10Center === 0) {
+        window10Center = currentTime;
+    }
+    
+    // 30 second window - use window center, not current time
+    const window30Start = Math.max(0, window30Center - 15);
+    const window30End = Math.min(duration, window30Center + 15);
     const idx30Start = Math.floor((window30Start / duration) * waveformData.length);
     const idx30End = Math.floor((window30End / duration) * waveformData.length);
     drawWaveform('window30Waveform', waveformData, idx30Start, idx30End);
     
-    // 10 second window
-    const window10Start = Math.max(0, currentTime - 5);
-    const window10End = Math.min(duration, currentTime + 5);
+    // 10 second window - use window center, not current time
+    const window10Start = Math.max(0, window10Center - 5);
+    const window10End = Math.min(duration, window10Center + 5);
     const idx10Start = Math.floor((window10Start / duration) * waveformData.length);
     const idx10End = Math.floor((window10End / duration) * waveformData.length);
     drawWaveform('window10Waveform', waveformData, idx10Start, idx10End);
@@ -364,7 +413,20 @@ playButton.addEventListener('click', () => {
 
 // Audio event listeners
 audioPlayer.addEventListener('timeupdate', () => {
-    updateAllTracks();
+    const isPlaying = !audioPlayer.paused;
+    
+    // Only update deltaTime when actually playing
+    const now = Date.now();
+    const deltaTime = (isPlaying && lastUpdateTime) ? (now - lastUpdateTime) / 1000 : 0;
+    
+    // Always update lastUpdateTime when playing, reset when paused
+    if (isPlaying) {
+        lastUpdateTime = now;
+    } else {
+        lastUpdateTime = 0; // Reset so we don't get huge deltaTime on unpause
+    }
+    
+    updateAllTracksSmooth(deltaTime);
     updateWaveforms();
     
     // Handle loop mode
@@ -379,6 +441,8 @@ audioPlayer.addEventListener('timeupdate', () => {
 
 audioPlayer.addEventListener('loadedmetadata', () => {
     audioPlayer.playbackRate = currentSpeed;
+    window30Center = audioPlayer.currentTime;
+    window10Center = audioPlayer.currentTime;
     updateAllTracks();
     updateBookmarkMarkers();
     updateLoopDisplay();
@@ -388,62 +452,200 @@ audioPlayer.addEventListener('loadedmetadata', () => {
     }
 });
 
-// Update all progress tracks
-function updateAllTracks() {
+// Update all progress tracks with smooth tracking
+function updateAllTracksSmooth(deltaTime) {
     const current = audioPlayer.currentTime;
     const duration = audioPlayer.duration;
+    const isPlaying = !audioPlayer.paused;
     
-    // Full track
+    // Don't update if duration is invalid
+    if (!duration || isNaN(duration) || duration === 0) {
+        return;
+    }
+    
+    // Full track - always centered on current position
     document.getElementById('fullTime').textContent = `${formatTime(current)} / ${formatTime(duration)}`;
     const fullPercent = (current / duration) * 100;
     document.getElementById('fullProgress').style.width = fullPercent + '%';
     document.getElementById('fullPosition').style.left = fullPercent + '%';
     
-    // 30 second window
-    const window30Start = Math.max(0, current - 15);
-    const window30End = Math.min(duration, current + 15);
-    const window30Range = window30End - window30Start;
-    const window30Percent = ((current - window30Start) / window30Range) * 100;
-    document.getElementById('windowTime30').textContent = `${formatTime(window30Start)} - ${formatTime(window30End)}`;
-    document.getElementById('window30Progress').style.width = window30Percent + '%';
-    document.getElementById('window30Position').style.left = window30Percent + '%';
+    // 30 second window with smooth tracking
+    updateWindowTrack(current, duration, 30, isPlaying, deltaTime);
     
-    // 10 second window
-    const window10Start = Math.max(0, current - 5);
-    const window10End = Math.min(duration, current + 5);
-    const window10Range = window10End - window10Start;
-    const window10Percent = ((current - window10Start) / window10Range) * 100;
-    document.getElementById('windowTime10').textContent = `${formatTime(window10Start)} - ${formatTime(window10End)}`;
-    document.getElementById('window10Progress').style.width = window10Percent + '%';
-    document.getElementById('window10Position').style.left = window10Percent + '%';
+    // 10 second window with smooth tracking
+    updateWindowTrack(current, duration, 10, isPlaying, deltaTime);
     
     updateBookmarkMarkers();
     updateLoopDisplay();
 }
 
-// Track clicking handlers
+// Smart window tracking for 30s and 10s views
+function updateWindowTrack(currentTime, duration, windowSize, isPlaying, deltaTime) {
+    // Safety check
+    if (!duration || isNaN(duration) || duration === 0) {
+        console.error(`Invalid duration: ${duration}`);
+        return;
+    }
+    
+    const halfWindow = windowSize / 2;
+    const prefix = windowSize === 30 ? 'window30' : 'window10';
+    let windowCenter = windowSize === 30 ? window30Center : window10Center;
+    
+    // Initialize window center if not set or at zero
+    if (!windowCenter || windowCenter === 0 || isNaN(windowCenter)) {
+        windowCenter = currentTime || 0;
+        if (windowSize === 30) {
+            window30Center = windowCenter;
+        } else {
+            window10Center = windowCenter;
+        }
+        console.log(`Initialized ${prefix} center to ${windowCenter}, duration=${duration}`);
+    }
+    
+    // Calculate where playhead is relative to window center
+    const playheadOffset = currentTime - windowCenter;
+    
+    // Calculate initial window boundaries
+    let windowStart = windowCenter - halfWindow;
+    let windowEnd = windowCenter + halfWindow;
+    
+    // Check if playhead is outside visible window - force re-center
+    if (currentTime < windowStart || currentTime > windowEnd) {
+        windowCenter = currentTime;
+        if (windowSize === 30) {
+            window30Center = currentTime;
+        } else {
+            window10Center = currentTime;
+        }
+    } else if (isPlaying && deltaTime > 0) {
+        // Simple, clear tracking behavior
+        const centerThreshold = windowSize === 30 ? 0.5 : 0.2; // Snap to center within this distance
+        const catchupSpeed = 2.0; // Fixed speed multiplier for catching up
+        
+        const absOffset = Math.abs(playheadOffset);
+        
+        if (absOffset <= centerThreshold) {
+            // Close enough to center - move window at playback speed to stay locked
+            windowCenter += audioPlayer.playbackRate * deltaTime;
+            
+            // Store the locked center
+            if (windowSize === 30) {
+                window30Center = windowCenter;
+            } else {
+                window10Center = windowCenter;
+            }
+        } else if (playheadOffset < 0) {
+            // Playhead is LEFT of center
+            // Window stays still - don't move at all
+            // (playhead will naturally move right as audio plays)
+            // Do nothing
+        } else {
+            // Playhead is RIGHT of center
+            // Window catches up at fixed 2x speed
+            windowCenter += audioPlayer.playbackRate * catchupSpeed * deltaTime;
+            
+            // Store updated center
+            if (windowSize === 30) {
+                window30Center = windowCenter;
+            } else {
+                window10Center = windowCenter;
+            }
+        }
+        
+        // Store updated center
+        if (windowSize === 30) {
+            window30Center = windowCenter;
+        } else {
+            window10Center = windowCenter;
+        }
+    }
+    
+    // Clamp window center to valid range
+    windowCenter = Math.max(halfWindow, Math.min(duration - halfWindow, windowCenter));
+    
+    // Store the clamped center
+    if (windowSize === 30) {
+        window30Center = windowCenter;
+    } else {
+        window10Center = windowCenter;
+    }
+    
+    // Recalculate final window boundaries based on clamped center
+    windowStart = Math.max(0, windowCenter - halfWindow);
+    windowEnd = Math.min(duration, windowCenter + halfWindow);
+    
+    // Adjust if we're near the edges
+    if (windowStart === 0) {
+        windowEnd = Math.min(duration, windowSize);
+    } else if (windowEnd === duration) {
+        windowStart = Math.max(0, duration - windowSize);
+    }
+    
+    const windowRange = windowEnd - windowStart;
+    
+    // Prevent division by zero
+    if (windowRange === 0) {
+        console.error(`${prefix}: windowRange is 0!`, { windowStart, windowEnd, duration, windowCenter });
+        return;
+    }
+    
+    // Calculate playhead position within this window
+    const playheadPercent = ((currentTime - windowStart) / windowRange) * 100;
+    
+    // Update display
+    document.getElementById(`${prefix}Time`).textContent = `${formatTime(windowStart)} - ${formatTime(windowEnd)}`;
+    document.getElementById(`${prefix}Progress`).style.width = Math.max(0, Math.min(100, playheadPercent)) + '%';
+    document.getElementById(`${prefix}Position`).style.left = Math.max(0, Math.min(100, playheadPercent)) + '%';
+}
+
+// Legacy function for compatibility - now calls smooth version
+function updateAllTracks() {
+    updateAllTracksSmooth(0);
+}
+
+// Track clicking handlers with smart positioning
 document.getElementById('fullTrack').addEventListener('click', (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const percent = (e.clientX - rect.left) / rect.width;
     audioPlayer.currentTime = percent * audioPlayer.duration;
+    // Full track always centers, so update window centers
+    window30Center = audioPlayer.currentTime;
+    window10Center = audioPlayer.currentTime;
 });
 
 document.getElementById('window30Track').addEventListener('click', (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const percent = (e.clientX - rect.left) / rect.width;
-    const window30Start = Math.max(0, audioPlayer.currentTime - 15);
-    const window30End = Math.min(audioPlayer.duration, audioPlayer.currentTime + 15);
-    const window30Range = window30End - window30Start;
-    audioPlayer.currentTime = window30Start + (percent * window30Range);
+    
+    const windowStart = Math.max(0, window30Center - 15);
+    const windowEnd = Math.min(audioPlayer.duration, window30Center + 15);
+    const windowRange = windowEnd - windowStart;
+    const newTime = windowStart + (percent * windowRange);
+    
+    audioPlayer.currentTime = newTime;
+    
+    // Only re-center if clicked position is outside current window
+    if (newTime < windowStart || newTime > windowEnd) {
+        window30Center = newTime;
+        window10Center = newTime;
+    }
 });
 
 document.getElementById('window10Track').addEventListener('click', (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const percent = (e.clientX - rect.left) / rect.width;
-    const window10Start = Math.max(0, audioPlayer.currentTime - 5);
-    const window10End = Math.min(audioPlayer.duration, audioPlayer.currentTime + 5);
-    const window10Range = window10End - window10Start;
-    audioPlayer.currentTime = window10Start + (percent * window10Range);
+    
+    const windowStart = Math.max(0, window10Center - 5);
+    const windowEnd = Math.min(audioPlayer.duration, window10Center + 5);
+    const windowRange = windowEnd - windowStart;
+    const newTime = windowStart + (percent * windowRange);
+    
+    audioPlayer.currentTime = newTime;
+    
+    // Only re-center if clicked position is outside current window
+    if (newTime < windowStart || newTime > windowEnd) {
+        window10Center = newTime;
+    }
 });
 
 // Rewind/Forward buttons
@@ -483,6 +685,7 @@ document.getElementById('addBookmark').addEventListener('click', () => {
     bookmarks.push(bookmark);
     bookmarks.sort((a, b) => a.time - b.time);
     updateBookmarkList();
+    updateBookmarkMarkers(); // Make sure to update markers after adding
     saveSongData();
 });
 
@@ -519,6 +722,9 @@ document.getElementById('toggleLoop').addEventListener('click', () => {
         loopCount = 0;
         document.getElementById('toggleLoop').textContent = '🔁 Loop Mode: On';
         document.getElementById('toggleLoop').classList.add('active');
+        
+        // Auto-jump to loop start for better UX
+        audioPlayer.currentTime = loopStart;
     } else {
         loopMode = false;
         loopStart = null;
@@ -642,6 +848,11 @@ window.setLoopPoint = function(id, point) {
         updateBookmarkList();
         updateLoopDisplay();
         saveSongData();
+        
+        // Auto-jump to loop start when both points are set
+        if (loopStart !== null && loopEnd !== null) {
+            audioPlayer.currentTime = loopStart;
+        }
     }
 };
 
@@ -656,6 +867,8 @@ window.deleteBookmark = function(id) {
 function updateBookmarkMarkers() {
     if (!audioPlayer.duration) return;
     
+    const duration = audioPlayer.duration;
+    
     ['full', 'window30', 'window10'].forEach(prefix => {
         const container = document.getElementById(`${prefix}Bookmarks`);
         container.innerHTML = '';
@@ -665,22 +878,26 @@ function updateBookmarkMarkers() {
             let show = true;
             
             if (prefix === 'full') {
-                percent = (b.time / audioPlayer.duration) * 100;
+                percent = (b.time / duration) * 100;
             } else if (prefix === 'window30') {
-                const start = Math.max(0, audioPlayer.currentTime - 15);
-                const end = Math.min(audioPlayer.duration, audioPlayer.currentTime + 15);
+                const center = window30Center || audioPlayer.currentTime;
+                const start = Math.max(0, center - 15);
+                const end = Math.min(duration, center + 15);
                 if (b.time < start || b.time > end) {
                     show = false;
                 } else {
-                    percent = ((b.time - start) / (end - start)) * 100;
+                    const range = end - start;
+                    percent = ((b.time - start) / range) * 100;
                 }
             } else {
-                const start = Math.max(0, audioPlayer.currentTime - 5);
-                const end = Math.min(audioPlayer.duration, audioPlayer.currentTime + 5);
+                const center = window10Center || audioPlayer.currentTime;
+                const start = Math.max(0, center - 5);
+                const end = Math.min(duration, center + 5);
                 if (b.time < start || b.time > end) {
                     show = false;
                 } else {
-                    percent = ((b.time - start) / (end - start)) * 100;
+                    const range = end - start;
+                    percent = ((b.time - start) / range) * 100;
                 }
             }
             
