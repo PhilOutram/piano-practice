@@ -68,6 +68,7 @@
             <div class="card">
                 <div class="controls">
                     <button class="play-button" id="playButton">▶</button>
+                    <div class="current-time-display" id="currentTimeDisplay">0:00</div>
                 </div>
 
                 <div class="button-group">
@@ -90,6 +91,13 @@
                         <button class="btn btn-speed" data-speed="1.25">1.25x</button>
                         <button class="btn btn-speed" data-speed="1.5">1.5x</button>
                     </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <label style="font-weight: 600; display: block; margin-bottom: 8px;">
+                        Volume: <span id="volumeDisplay">100</span>%
+                    </label>
+                    <input type="range" id="volumeSlider" min="0" max="100" value="100" class="volume-slider">
                 </div>
             </div>
 

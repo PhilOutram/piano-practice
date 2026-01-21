@@ -118,6 +118,10 @@ h1 {
 .controls {
     text-align: center;
     margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
 }
 
 .play-button {
@@ -139,6 +143,15 @@ h1 {
 .play-button:hover {
     background: #7e22ce;
     transform: scale(1.05);
+}
+
+.current-time-display {
+    font-size: 2em;
+    font-weight: 700;
+    color: #9333ea;
+    font-variant-numeric: tabular-nums;
+    min-width: 120px;
+    text-align: center;
 }
 
 .button-group {
@@ -402,6 +415,63 @@ h1 {
     font-size: 0.9em;
 }
 
+.volume-slider {
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    background: #e5e7eb;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #9333ea;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.volume-slider::-webkit-slider-thumb:hover {
+    background: #7e22ce;
+    transform: scale(1.1);
+}
+
+.volume-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #9333ea;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+}
+
+.volume-slider::-moz-range-thumb:hover {
+    background: #7e22ce;
+    transform: scale(1.1);
+}
+
+.volume-slider::-webkit-slider-runnable-track {
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(to right, 
+        #9333ea 0%, 
+        #9333ea var(--volume-percent, 100%), 
+        #e5e7eb var(--volume-percent, 100%), 
+        #e5e7eb 100%);
+}
+
+.volume-slider::-moz-range-track {
+    height: 8px;
+    border-radius: 4px;
+    background: #e5e7eb;
+}
+
 #audioPlayer {
     display: none;
 }
@@ -440,6 +510,24 @@ h1 {
         width: 56px;
         height: 56px;
         font-size: 20px;
+    }
+
+    .current-time-display {
+        font-size: 1.8em;
+    }
+
+    .volume-slider {
+        height: 12px; /* Taller for easier touch */
+    }
+
+    .volume-slider::-webkit-slider-thumb {
+        width: 28px;
+        height: 28px;
+    }
+
+    .volume-slider::-moz-range-thumb {
+        width: 28px;
+        height: 28px;
     }
 
     .button-group {

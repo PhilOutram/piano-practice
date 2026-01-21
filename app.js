@@ -441,6 +441,7 @@ audioPlayer.addEventListener('timeupdate', () => {
 
 audioPlayer.addEventListener('loadedmetadata', () => {
     audioPlayer.playbackRate = currentSpeed;
+    audioPlayer.volume = document.getElementById('volumeSlider').value / 100;
     window30Center = audioPlayer.currentTime;
     window10Center = audioPlayer.currentTime;
     updateAllTracks();
@@ -462,6 +463,9 @@ function updateAllTracksSmooth(deltaTime) {
     if (!duration || isNaN(duration) || duration === 0) {
         return;
     }
+    
+    // Update large current time display
+    document.getElementById('currentTimeDisplay').textContent = formatTime(current);
     
     // Full track - always centered on current position
     document.getElementById('fullTime').textContent = `${formatTime(current)} / ${formatTime(duration)}`;
@@ -672,6 +676,22 @@ document.querySelectorAll('.btn-speed').forEach(btn => {
         saveSongData();
     });
 });
+
+// Volume control
+const volumeSlider = document.getElementById('volumeSlider');
+const volumeDisplay = document.getElementById('volumeDisplay');
+
+volumeSlider.addEventListener('input', (e) => {
+    const volume = e.target.value;
+    audioPlayer.volume = volume / 100;
+    volumeDisplay.textContent = volume;
+    
+    // Update slider track color
+    volumeSlider.style.setProperty('--volume-percent', volume + '%');
+});
+
+// Initialize volume slider color
+volumeSlider.style.setProperty('--volume-percent', '100%');
 
 // Bookmark management
 document.getElementById('addBookmark').addEventListener('click', () => {
