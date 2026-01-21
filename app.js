@@ -68,6 +68,12 @@ function loadSongData(songId) {
         loopEnd = data.loopEnd || null;
         currentSpeed = data.speed || 1.0;
         
+        // Restore volume setting
+        const savedVolume = data.volume !== undefined ? data.volume : 100;
+        audioPlayer.volume = savedVolume / 100;
+        document.getElementById('volumeSlider').value = savedVolume;
+        document.getElementById('volumeSlider').style.setProperty('--volume-percent', savedVolume + '%');
+        
         // Update UI
         audioPlayer.playbackRate = currentSpeed;
         document.getElementById('speedDisplay').textContent = currentSpeed;
@@ -80,7 +86,7 @@ function loadSongData(songId) {
         }
         
         updateBookmarkList();
-        console.log(`Loaded ${bookmarks.length} bookmarks for "${currentFileName}"`);
+        console.log(`Loaded ${bookmarks.length} bookmarks for "${currentFileName}" (Volume: ${savedVolume}%)`);
         return true;
     }
     return false;
@@ -90,6 +96,8 @@ function loadSongData(songId) {
 function saveSongData() {
     if (!currentSongId) return;
     
+    const currentVolume = Math.round(audioPlayer.volume * 100);
+    
     const songData = {
         fileName: currentFileName,
         bookmarks: bookmarks,
@@ -97,6 +105,7 @@ function saveSongData() {
         loopStart: loopStart,
         loopEnd: loopEnd,
         speed: currentSpeed,
+        volume: currentVolume,
         lastPracticed: Date.now(),
         totalPracticeTime: getSongPracticeTime()
     };
@@ -679,15 +688,18 @@ document.querySelectorAll('.btn-speed').forEach(btn => {
 
 // Volume control
 const volumeSlider = document.getElementById('volumeSlider');
-const volumeDisplay = document.getElementById('volumeDisplay');
 
 volumeSlider.addEventListener('input', (e) => {
     const volume = e.target.value;
     audioPlayer.volume = volume / 100;
-    volumeDisplay.textContent = volume;
     
     // Update slider track color
     volumeSlider.style.setProperty('--volume-percent', volume + '%');
+});
+
+// Save volume when user stops changing it
+volumeSlider.addEventListener('change', () => {
+    saveSongData();
 });
 
 // Initialize volume slider color

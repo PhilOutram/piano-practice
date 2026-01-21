@@ -124,6 +124,15 @@ h1 {
     gap: 12px;
 }
 
+.controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
 .play-button {
     background: #9333ea;
     color: white;
@@ -138,6 +147,7 @@ h1 {
     justify-content: center;
     box-shadow: 0 4px 6px rgba(147, 51, 234, 0.3);
     transition: all 0.2s;
+    flex-shrink: 0;
 }
 
 .play-button:hover {
@@ -150,8 +160,80 @@ h1 {
     font-weight: 700;
     color: #9333ea;
     font-variant-numeric: tabular-nums;
-    min-width: 120px;
+    min-width: 100px;
     text-align: center;
+}
+
+.volume-control-inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    max-width: 200px;
+    min-width: 120px;
+}
+
+.volume-icon {
+    font-size: 1.2em;
+    flex-shrink: 0;
+}
+
+.volume-slider-inline {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: #e5e7eb;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    flex: 1;
+}
+
+.volume-slider-inline::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #9333ea;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.volume-slider-inline::-webkit-slider-thumb:hover {
+    background: #7e22ce;
+    transform: scale(1.1);
+}
+
+.volume-slider-inline::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #9333ea;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+}
+
+.volume-slider-inline::-moz-range-thumb:hover {
+    background: #7e22ce;
+    transform: scale(1.1);
+}
+
+.volume-slider-inline::-webkit-slider-runnable-track {
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(to right, 
+        #9333ea 0%, 
+        #9333ea var(--volume-percent, 100%), 
+        #e5e7eb var(--volume-percent, 100%), 
+        #e5e7eb 100%);
+}
+
+.volume-slider-inline::-moz-range-track {
+    height: 6px;
+    border-radius: 3px;
+    background: #e5e7eb;
 }
 
 .button-group {
@@ -472,6 +554,14 @@ h1 {
     background: #e5e7eb;
 }
 
+.version {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 0.75em;
+    padding: 12px;
+    margin-top: 8px;
+}
+
 #audioPlayer {
     display: none;
 }
@@ -483,156 +573,232 @@ h1 {
     }
 
     h1 {
-        font-size: 1.5em;
-        margin-bottom: 12px;
+        font-size: 1.2em;
+        margin-bottom: 8px;
     }
 
     .card {
-        padding: 12px;
-        margin-bottom: 12px;
+        padding: 8px;
+        margin-bottom: 8px;
         border-radius: 8px;
     }
 
+    .file-upload {
+        margin-bottom: 0;
+    }
+
+    .file-upload input[type="file"] {
+        font-size: 0;
+        padding: 6px;
+        height: 36px;
+    }
+
+    .file-upload input[type="file"]::file-selector-button {
+        font-size: 0.85em;
+        padding: 6px 12px;
+    }
+
+    .file-name {
+        display: none; /* Hide duplicate filename */
+    }
+
     .track-container {
-        margin-bottom: 16px;
+        margin-bottom: 10px;
     }
 
     .track-label {
-        font-size: 0.85em;
-        margin-bottom: 4px;
+        font-size: 0.75em;
+        margin-bottom: 3px;
     }
 
     .progress-bar {
-        height: 70px; /* Taller for easier touch */
+        height: 50px; /* More compact */
+    }
+
+    .controls-row {
+        gap: 10px;
+        margin-bottom: 10px;
     }
 
     .play-button {
-        width: 56px;
-        height: 56px;
-        font-size: 20px;
+        width: 48px;
+        height: 48px;
+        font-size: 18px;
+        flex-shrink: 0;
     }
 
     .current-time-display {
-        font-size: 1.8em;
+        font-size: 1.4em;
+        min-width: 70px;
     }
 
-    .volume-slider {
-        height: 12px; /* Taller for easier touch */
+    .volume-control-inline {
+        flex: 1;
+        max-width: none;
+        min-width: 80px;
     }
 
-    .volume-slider::-webkit-slider-thumb {
-        width: 28px;
-        height: 28px;
+    .volume-icon {
+        font-size: 1em;
     }
 
-    .volume-slider::-moz-range-thumb {
-        width: 28px;
-        height: 28px;
+    .volume-slider-inline {
+        height: 8px;
+    }
+
+    .volume-slider-inline::-webkit-slider-thumb {
+        width: 22px;
+        height: 22px;
+    }
+
+    .volume-slider-inline::-moz-range-thumb {
+        width: 22px;
+        height: 22px;
     }
 
     .button-group {
-        gap: 6px;
-        margin-top: 12px;
+        gap: 4px;
+        margin-top: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
     }
 
     .btn {
-        padding: 10px 14px;
-        font-size: 0.85em;
-        min-height: 44px;
-        flex: 1; /* Buttons grow to fill space */
-        min-width: 0; /* Allow buttons to shrink */
+        padding: 6px 8px;
+        font-size: 0.7em;
+        min-height: 32px;
+        flex: 0 1 auto; /* Don't grow, can shrink */
+        min-width: 0;
     }
 
-    /* Stack buttons vertically on very small screens */
-    @media (max-width: 480px) {
-        .button-group {
-            flex-direction: column;
-        }
-
-        .btn {
-            width: 100%;
-        }
+    /* Specific button sizing */
+    #rewindStart, #rewind30, #rewind10, #rewind5, #rewind1, #forward1 {
+        flex: 0 0 auto;
+        width: auto;
+        white-space: nowrap;
     }
 
-    .controls {
-        margin-bottom: 16px;
+    .btn-speed {
+        flex: 0 0 auto;
+        width: auto;
+        min-width: 45px;
     }
 
     .section-title {
-        font-size: 1.1em;
-        margin-bottom: 12px;
+        font-size: 1em;
+        margin-bottom: 8px;
     }
 
     .bookmark-item {
-        padding: 10px;
-        font-size: 0.9em;
+        padding: 8px;
+        font-size: 0.8em;
         flex-wrap: wrap;
     }
 
     .bookmark-info {
         flex-basis: 100%;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
+        font-size: 0.85em;
     }
 
     .bookmark-controls {
         flex-wrap: wrap;
-        gap: 6px;
+        gap: 4px;
     }
 
     .stats {
-        flex-direction: column;
-        padding: 12px;
+        flex-direction: row;
+        padding: 8px;
         gap: 12px;
     }
 
     .stat {
-        padding: 8px 0;
+        padding: 4px 0;
     }
 
     .stat-value {
-        font-size: 1.3em;
+        font-size: 1.1em;
+    }
+
+    .stat-label {
+        font-size: 0.7em;
     }
 
     .keyboard-help {
-        font-size: 0.75em;
-        padding: 10px;
         display: none; /* Hide on mobile - no keyboard */
     }
 
     .recent-song-btn {
-        font-size: 0.85em;
-        padding: 6px 12px;
-        margin: 3px;
+        font-size: 0.75em;
+        padding: 4px 8px;
+        margin: 2px;
     }
 
-    .file-upload input[type="file"] {
-        font-size: 0.9em;
+    .recent-song-btn-container {
         padding: 8px;
     }
 
-    /* Make color picker bigger on mobile */
-    .color-picker {
-        width: 40px;
-        height: 40px;
+    .volume-slider {
+        height: 10px;
     }
+
+    .volume-slider::-webkit-slider-thumb {
+        width: 24px;
+        height: 24px;
+    }
+
+    .volume-slider::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+    }
+
+    /* Compact labels */
+    label {
+        font-size: 0.85em;
+        margin-bottom: 6px !important;
+    }
+
+    .version {
+        font-size: 0.65em;
+        padding: 6px;
+    }
+
+    /* Hide bookmark section heading to save space */
+    .section-title {
+        font-size: 0.9em;
+    }
+}
+
+/* Stack buttons on very small screens - REMOVED */
+@media (max-width: 480px) {
+    /* Keep buttons horizontal even on small screens */
 }
 
 /* Extra small phones */
 @media (max-width: 380px) {
     h1 {
-        font-size: 1.3em;
+        font-size: 1.1em;
     }
 
     .progress-bar {
-        height: 80px; /* Even taller on small phones */
+        height: 45px;
     }
 
     .btn {
-        font-size: 0.8em;
-        padding: 8px 10px;
+        font-size: 0.65em;
+        padding: 5px 6px;
     }
 
     .bookmark-item {
-        font-size: 0.85em;
+        font-size: 0.75em;
+    }
+
+    .play-button {
+        width: 44px;
+        height: 44px;
+    }
+
+    .current-time-display {
+        font-size: 1.4em;
     }
 }
