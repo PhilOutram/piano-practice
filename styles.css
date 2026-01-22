@@ -130,7 +130,7 @@ h1 {
     justify-content: center;
     gap: 16px;
     margin-bottom: 16px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
 }
 
 .play-button {
@@ -234,6 +234,19 @@ h1 {
     height: 6px;
     border-radius: 3px;
     background: #e5e7eb;
+}
+
+.speed-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.speed-label {
+    font-weight: 600;
+    color: #374151;
+    white-space: nowrap;
 }
 
 .button-group {
@@ -588,9 +601,9 @@ h1 {
     }
 
     .file-upload input[type="file"] {
-        font-size: 0;
-        padding: 6px;
-        height: 36px;
+        font-size: 0.85em;
+        padding: 8px;
+        height: auto;
     }
 
     .file-upload input[type="file"]::file-selector-button {
@@ -599,7 +612,9 @@ h1 {
     }
 
     .file-name {
-        display: none; /* Hide duplicate filename */
+        display: block;
+        margin-top: 6px;
+        font-size: 0.8em;
     }
 
     .track-container {
@@ -616,44 +631,62 @@ h1 {
     }
 
     .controls-row {
-        gap: 10px;
+        gap: 6px;
         margin-bottom: 10px;
+        flex-wrap: nowrap !important;
+        width: 100%;
+        justify-content: space-between;
+        display: flex !important;
+        align-items: center !important;
     }
 
     .play-button {
-        width: 48px;
-        height: 48px;
-        font-size: 18px;
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
         flex-shrink: 0;
     }
 
     .current-time-display {
-        font-size: 1.4em;
-        min-width: 70px;
+        font-size: 1.2em;
+        min-width: 60px;
+        flex-shrink: 0;
     }
 
     .volume-control-inline {
         flex: 1;
-        max-width: none;
-        min-width: 80px;
+        max-width: 120px;
+        min-width: 50px;
+        display: flex !important;
+        align-items: center !important;
     }
 
     .volume-icon {
-        font-size: 1em;
+        font-size: 0.9em;
+        flex-shrink: 0;
     }
 
     .volume-slider-inline {
-        height: 8px;
+        height: 6px;
+        flex: 1;
     }
 
     .volume-slider-inline::-webkit-slider-thumb {
-        width: 22px;
-        height: 22px;
+        width: 20px;
+        height: 20px;
     }
 
     .volume-slider-inline::-moz-range-thumb {
-        width: 22px;
-        height: 22px;
+        width: 20px;
+        height: 20px;
+    }
+
+    .speed-controls {
+        margin-top: 10px;
+    }
+
+    .speed-label {
+        font-size: 0.85em;
     }
 
     .button-group {
@@ -794,11 +827,17 @@ h1 {
     }
 
     .play-button {
-        width: 44px;
-        height: 44px;
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
     }
 
     .current-time-display {
-        font-size: 1.4em;
+        font-size: 1.1em;
+        min-width: 55px;
+    }
+
+    .volume-control-inline {
+        max-width: 100px;
     }
 }

@@ -76,7 +76,6 @@ function loadSongData(songId) {
         
         // Update UI
         audioPlayer.playbackRate = currentSpeed;
-        document.getElementById('speedDisplay').textContent = currentSpeed;
         document.querySelectorAll('.btn-speed').forEach(b => b.classList.remove('active'));
         document.querySelector(`[data-speed="${currentSpeed}"]`)?.classList.add('active');
         
@@ -679,7 +678,6 @@ document.querySelectorAll('.btn-speed').forEach(btn => {
         const speed = parseFloat(btn.dataset.speed);
         currentSpeed = speed;
         audioPlayer.playbackRate = speed;
-        document.getElementById('speedDisplay').textContent = speed;
         document.querySelectorAll('.btn-speed').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         saveSongData();
