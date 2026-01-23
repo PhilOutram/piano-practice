@@ -34,6 +34,7 @@ h1 {
 .file-upload {
     display: flex;
     align-items: center;
+    justify-content: flex-start;
     gap: 12px;
     padding: 10px;
     border: 2px dashed #9333ea;
@@ -78,6 +79,7 @@ h1 {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    text-align: left;
 }
 
 .track-container {
