@@ -35,15 +35,39 @@ h1 {
     display: flex;
     align-items: center;
     gap: 12px;
+    padding: 10px;
+    border: 2px dashed #9333ea;
+    border-radius: 8px;
+    background: #faf5ff;
 }
 
 .file-upload input[type="file"] {
     flex-shrink: 0;
-    padding: 10px;
-    border: 2px dashed #9333ea;
-    border-radius: 8px;
     cursor: pointer;
-    background: #faf5ff;
+    color: transparent;
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.file-upload input[type="file"]::-webkit-file-upload-button {
+    visibility: hidden;
+    width: 0;
+}
+
+.file-upload input[type="file"]::before {
+    content: 'Choose File';
+    display: inline-block;
+    background: #9333ea;
+    color: white;
+    border-radius: 6px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.file-upload input[type="file"]:hover::before {
+    background: #7e22ce;
 }
 
 .file-name {
@@ -129,7 +153,7 @@ h1 {
 .main-controls-row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: space-around;
     gap: 15px;
     margin-bottom: 16px;
     padding: 0 10px;
@@ -543,20 +567,16 @@ h1 {
     }
 
     .file-upload {
-        flex-direction: column;
-        align-items: stretch;
+        padding: 8px;
         gap: 8px;
     }
 
     .file-upload input[type="file"] {
         font-size: 0.85em;
-        padding: 8px;
-        height: auto;
     }
 
     .file-name {
         font-size: 0.8em;
-        text-align: center;
     }
 
     .track-container {

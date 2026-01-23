@@ -232,7 +232,7 @@ fileInput.addEventListener('change', async (e) => {
 // Load audio file
 async function loadAudioFile(file) {
     currentFileName = file.name;
-    document.getElementById('fileName').textContent = `Loaded: ${file.name}`;
+    document.getElementById('fileName').textContent = file.name;
     document.getElementById('recentSongsButtons').innerHTML = '';
     
     if (audioPlayer.src && audioPlayer.src.startsWith('blob:')) {
