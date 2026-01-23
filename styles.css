@@ -31,8 +31,14 @@ h1 {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+.file-upload {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
 .file-upload input[type="file"] {
-    width: 100%;
+    flex-shrink: 0;
     padding: 10px;
     border: 2px dashed #9333ea;
     border-radius: 8px;
@@ -41,9 +47,13 @@ h1 {
 }
 
 .file-name {
-    margin-top: 8px;
     color: #6b7280;
     font-size: 0.9em;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .track-container {
@@ -67,7 +77,7 @@ h1 {
     cursor: pointer;
     overflow: hidden;
     border: 1px solid #e5e7eb;
-    touch-action: none; /* Prevent scrolling when touching progress bar */
+    touch-action: none;
 }
 
 .waveform-canvas {
@@ -115,22 +125,14 @@ h1 {
     pointer-events: none;
 }
 
-.controls {
-    text-align: center;
-    margin-bottom: 24px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-}
-
-.controls-row {
+/* Main controls row - play, time, volume on one line */
+.main-controls-row {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 16px;
+    justify-content: space-between;
+    gap: 15px;
     margin-bottom: 16px;
-    flex-wrap: nowrap;
+    padding: 0 10px;
 }
 
 .play-button {
@@ -160,17 +162,18 @@ h1 {
     font-weight: 700;
     color: #9333ea;
     font-variant-numeric: tabular-nums;
-    min-width: 100px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-width: 4ch;
     text-align: center;
 }
 
-.volume-control-inline {
+.volume-container {
     display: flex;
     align-items: center;
     gap: 8px;
     flex: 1;
     max-width: 200px;
-    min-width: 120px;
 }
 
 .volume-icon {
@@ -182,11 +185,11 @@ h1 {
     width: 100%;
     height: 6px;
     border-radius: 3px;
-    background: #e5e7eb;
     outline: none;
     -webkit-appearance: none;
     appearance: none;
     flex: 1;
+    background: linear-gradient(to right, #9333ea var(--volume-percent, 100%), #e5e7eb var(--volume-percent, 100%));
 }
 
 .volume-slider-inline::-webkit-slider-thumb {
@@ -198,6 +201,7 @@ h1 {
     background: #9333ea;
     cursor: pointer;
     transition: all 0.2s;
+    margin-top: -6px;
 }
 
 .volume-slider-inline::-webkit-slider-thumb:hover {
@@ -213,6 +217,7 @@ h1 {
     cursor: pointer;
     border: none;
     transition: all 0.2s;
+    margin-top: -6px;
 }
 
 .volume-slider-inline::-moz-range-thumb:hover {
@@ -265,7 +270,7 @@ h1 {
     font-size: 0.95em;
     font-weight: 500;
     transition: all 0.2s;
-    min-height: 44px; /* Touch-friendly minimum */
+    min-height: 44px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -280,7 +285,6 @@ h1 {
     background: #2563eb;
 }
 
-/* Darker colors for longer rewind times */
 #rewindStart {
     background: #0f172a;
 }
@@ -321,7 +325,6 @@ h1 {
     background: #3b82f6;
 }
 
-/* Forward button in different blue */
 #forward1 {
     background: #06b6d4;
 }
@@ -510,63 +513,6 @@ h1 {
     font-size: 0.9em;
 }
 
-.volume-slider {
-    width: 100%;
-    height: 8px;
-    border-radius: 4px;
-    background: #e5e7eb;
-    outline: none;
-    -webkit-appearance: none;
-    appearance: none;
-}
-
-.volume-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #9333ea;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.volume-slider::-webkit-slider-thumb:hover {
-    background: #7e22ce;
-    transform: scale(1.1);
-}
-
-.volume-slider::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #9333ea;
-    cursor: pointer;
-    border: none;
-    transition: all 0.2s;
-}
-
-.volume-slider::-moz-range-thumb:hover {
-    background: #7e22ce;
-    transform: scale(1.1);
-}
-
-.volume-slider::-webkit-slider-runnable-track {
-    height: 8px;
-    border-radius: 4px;
-    background: linear-gradient(to right, 
-        #9333ea 0%, 
-        #9333ea var(--volume-percent, 100%), 
-        #e5e7eb var(--volume-percent, 100%), 
-        #e5e7eb 100%);
-}
-
-.volume-slider::-moz-range-track {
-    height: 8px;
-    border-radius: 4px;
-    background: #e5e7eb;
-}
-
 .version {
     text-align: center;
     color: #9ca3af;
@@ -597,7 +543,9 @@ h1 {
     }
 
     .file-upload {
-        margin-bottom: 0;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
     }
 
     .file-upload input[type="file"] {
@@ -606,15 +554,9 @@ h1 {
         height: auto;
     }
 
-    .file-upload input[type="file"]::file-selector-button {
-        font-size: 0.85em;
-        padding: 6px 12px;
-    }
-
     .file-name {
-        display: block;
-        margin-top: 6px;
         font-size: 0.8em;
+        text-align: center;
     }
 
     .track-container {
@@ -627,48 +569,39 @@ h1 {
     }
 
     .progress-bar {
-        height: 50px; /* More compact */
+        height: 50px;
     }
 
-    .controls-row {
-        gap: 6px;
+    /* Keep controls horizontal on mobile */
+    .main-controls-row {
+        gap: 8px;
         margin-bottom: 10px;
-        flex-wrap: nowrap !important;
-        width: 100%;
-        justify-content: space-between;
-        display: flex !important;
-        align-items: center !important;
+        padding: 0 5px;
     }
 
     .play-button {
-        width: 40px;
-        height: 40px;
-        font-size: 16px;
-        flex-shrink: 0;
+        width: 48px;
+        height: 48px;
+        font-size: 18px;
     }
 
     .current-time-display {
-        font-size: 1.2em;
-        min-width: 60px;
-        flex-shrink: 0;
+        font-size: 1.3em;
+        flex: 1;
+        text-align: center;
     }
 
-    .volume-control-inline {
-        flex: 1;
-        max-width: 120px;
-        min-width: 50px;
-        display: flex !important;
-        align-items: center !important;
+    .volume-container {
+        max-width: 100px;
+        gap: 5px;
     }
 
     .volume-icon {
         font-size: 0.9em;
-        flex-shrink: 0;
     }
 
     .volume-slider-inline {
         height: 6px;
-        flex: 1;
     }
 
     .volume-slider-inline::-webkit-slider-thumb {
@@ -685,10 +618,6 @@ h1 {
         margin-top: 10px;
     }
 
-    .speed-label {
-        font-size: 0.85em;
-    }
-
     .button-group {
         gap: 4px;
         margin-top: 8px;
@@ -697,14 +626,13 @@ h1 {
     }
 
     .btn {
-        padding: 6px 8px;
-        font-size: 0.7em;
-        min-height: 32px;
-        flex: 0 1 auto; /* Don't grow, can shrink */
+        padding: 8px 10px;
+        font-size: 0.75em;
+        min-height: 36px;
+        flex: 0 1 auto;
         min-width: 0;
     }
 
-    /* Specific button sizing */
     #rewindStart, #rewind30, #rewind10, #rewind5, #rewind1, #forward1 {
         flex: 0 0 auto;
         width: auto;
@@ -714,7 +642,7 @@ h1 {
     .btn-speed {
         flex: 0 0 auto;
         width: auto;
-        min-width: 45px;
+        min-width: 50px;
     }
 
     .section-title {
@@ -758,7 +686,7 @@ h1 {
     }
 
     .keyboard-help {
-        display: none; /* Hide on mobile - no keyboard */
+        display: none;
     }
 
     .recent-song-btn {
@@ -771,40 +699,10 @@ h1 {
         padding: 8px;
     }
 
-    .volume-slider {
-        height: 10px;
-    }
-
-    .volume-slider::-webkit-slider-thumb {
-        width: 24px;
-        height: 24px;
-    }
-
-    .volume-slider::-moz-range-thumb {
-        width: 24px;
-        height: 24px;
-    }
-
-    /* Compact labels */
-    label {
-        font-size: 0.85em;
-        margin-bottom: 6px !important;
-    }
-
     .version {
         font-size: 0.65em;
         padding: 6px;
     }
-
-    /* Hide bookmark section heading to save space */
-    .section-title {
-        font-size: 0.9em;
-    }
-}
-
-/* Stack buttons on very small screens - REMOVED */
-@media (max-width: 480px) {
-    /* Keep buttons horizontal even on small screens */
 }
 
 /* Extra small phones */
@@ -817,27 +715,26 @@ h1 {
         height: 45px;
     }
 
-    .btn {
-        font-size: 0.65em;
-        padding: 5px 6px;
-    }
-
-    .bookmark-item {
-        font-size: 0.75em;
-    }
-
     .play-button {
-        width: 36px;
-        height: 36px;
-        font-size: 14px;
+        width: 44px;
+        height: 44px;
+        font-size: 16px;
     }
 
     .current-time-display {
         font-size: 1.1em;
-        min-width: 55px;
     }
 
-    .volume-control-inline {
-        max-width: 100px;
+    .volume-container {
+        max-width: 80px;
+    }
+
+    .btn {
+        font-size: 0.7em;
+        padding: 6px 8px;
+    }
+
+    .bookmark-item {
+        font-size: 0.75em;
     }
 }
